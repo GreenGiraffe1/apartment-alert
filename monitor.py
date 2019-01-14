@@ -1,4 +1,4 @@
-#!/user/bin/python3
+#!/home/user1/.virtualenvs/apartment-alerter/bin/python
 """
 This module will scrape the Equity Residential website periodically, and alert me
 when there is an update to the number of 2 BR apartments available.
@@ -65,7 +65,7 @@ def main():
             print('Different, but this is the first time around')
         elif set(new) == set(old):
             print('Same...')
-        time.sleep(30)  # SLEEP 30 seconds
+        time.sleep(600)  # SLEEP 10 minutes
         count += 1
 
 
@@ -93,10 +93,10 @@ def units_list(results):
     for i in range(len(results)):  # iterate through list and preserve index
         specs = results[i].find('div', class_='specs')
         # print(specs)
-        price = specs.find('span', class_='pricing').text
+        # price = specs.find('span', class_='pricing').text
         floor = specs.find('span', string=re.compile("Floor*")).text.strip()
         available = specs.find('p', string=re.compile("Available*")).text.strip()
-        apt = (price, floor, available)  # Create Tuple
+        apt = (floor, available)  # Create Tuple
         apt_list[i] = apt
     return apt_list
 
