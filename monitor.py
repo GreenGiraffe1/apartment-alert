@@ -1,3 +1,4 @@
+#!/user/bin/python3
 """
 This module will scrape the Equity Residential website periodically, and alert me
 when there is an update to the number of 2 BR apartments available.
