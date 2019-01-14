@@ -65,7 +65,7 @@ def main():
             print('Different, but this is the first time around')
         elif set(new) == set(old):
             print('Same...')
-        time.sleep(15)  # SLEEP 30 seconds
+        time.sleep(30)  # SLEEP 30 seconds
         count += 1
 
 
