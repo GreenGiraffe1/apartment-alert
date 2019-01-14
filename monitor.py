@@ -30,11 +30,13 @@ import time
 import requests
 from bs4 import BeautifulSoup
 
+import constants
+
 
 EQUITY_URL = 'https://www.equityapartments.com/boston/beacon-hill/the-towers-at-longfellow-apartments'
-EMAIL_ADDRESS = ''
-MAILGUN_API_KEY = ''
-MAILGUN_DOMAIN_NAME = ''
+EMAIL_ADDRESS = constants.EMAIL
+MAILGUN_API_KEY = constants.API
+MAILGUN_DOMAIN_NAME = constants.DOMAIN
 
 
 mailgun_endpoint = 'https://api.mailgun.net/v3/' + MAILGUN_DOMAIN_NAME + '/messages'
