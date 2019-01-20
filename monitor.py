@@ -1,4 +1,3 @@
-#!/home/user1/.virtualenvs/apartment-alerter/bin/python
 """
 This module will scrapes an apartment website periodically, and alerts
 when there is an update to the number of 2 BR apartments available.
