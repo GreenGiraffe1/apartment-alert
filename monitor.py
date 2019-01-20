@@ -1,26 +1,19 @@
 #!/home/user1/.virtualenvs/apartment-alerter/bin/python
 """
-This module will scrape the Equity Residential website periodically, and alert me
+This module will scrapes an apartment website periodically, and alerts
 when there is an update to the number of 2 BR apartments available.
 
-LOGIC
+The comparision is made between two sets of tuples (each containing info about a single apartment unit).
+Every 10 minutes the "new" set will be updated, and compared with it's former value to determine
+if there has been any change to the unit listings.
 
+
+    LOGIC
 
     Do the comparison like     set(a) == set(b)       (because this doesn't care about order)
     Each is a list of TUPLES
 
     set(list(a)) == set(list(b))
-
-
-
-PROOF - that the comparison logic works
-
-
-    stuff = [('$3,560', 'Floor 4', 'Available 1/13/2019'), ('$3,610', 'Floor 9', 'Available 1/13/2019'), ('$3,690', 'Floor 12', 'Available 2/23/2019'), ('$3,740', 'Floor 5', 'Available 1/13/2019'), ('$3,960', 'Floor 19', 'Available 2/6/2019')]
-    other = [('$3,610', 'Floor 9', 'Available 1/13/2019'), ('$3,560', 'Floor 4', 'Available 1/13/2019'), ('$3,690', 'Floor 12', 'Available 2/23/2019'), ('$3,740', 'Floor 5', 'Available 1/13/2019'), ('$3,960', 'Floor 19', 'Available 2/6/2019')]
-    print(stuff == other)
-    print(set(stuff) == set(other))
-
 
 """
 
@@ -30,23 +23,20 @@ import time
 
 import requests
 from bs4 import BeautifulSoup
+from twilio.rest import Client
 
-import constants
+
+from constants import TWILIO_SID, TWILIO_AUTH_TOKEN, FROM_PHONE, TO_PHONE, MAILGUN_DOMAIN_NAME, MAILGUN_API_KEY, EMAIL_ADDRESS, SITE_URL
 
 
-EQUITY_URL = 'https://www.equityapartments.com/boston/beacon-hill/the-towers-at-longfellow-apartments'
-EMAIL_ADDRESS = constants.EMAIL
-MAILGUN_API_KEY = constants.API
-MAILGUN_DOMAIN_NAME = constants.DOMAIN
+MESSAGE = '2BR Apartments List Updated!'
 
 
 mailgun_endpoint = 'https://api.mailgun.net/v3/' + MAILGUN_DOMAIN_NAME + '/messages'
-from_email_string = 'My Equity Alert <' + EMAIL_ADDRESS + '>'
+from_email_string = 'My Apartment Alert <' + EMAIL_ADDRESS + '>'
 
 
 def main():
-
-    # TODO: Add a PUSH / SMS Service
 
     old = []
     new = []
@@ -54,13 +44,14 @@ def main():
     while True:
         print('count = ' + str(count))
         old = new
-        units_html, quantity = get_and_parse(EQUITY_URL)
+        units_html, quantity = get_and_parse(SITE_URL)
         # unit_details = unit_detailer(units_html)
         new = units_list(units_html)
         if set(new) != set(old) and count > 0:
             print(new)
             print('Different!!!!')
             send_email()  # Send Email to Notify me of the change!!
+            send_sms()
         elif set(new) != set(old) and count == 0:
             print('Different, but this is the first time around')
         elif set(new) == set(old):
@@ -70,17 +61,32 @@ def main():
 
 
 def send_email():
+
     print('trying to send')
     return requests.post(
         mailgun_endpoint,
         auth=("api", MAILGUN_API_KEY),
         data={"from": from_email_string,
               "to": [EMAIL_ADDRESS],
-              "subject": "Equity 2BR Apartments Updated!",
+              "subject": MESSAGE,
               "text": "Check the site quick!"})
 
 
+def send_sms():
+
+    # Your Account Sid and Auth Token from twilio.com/console
+    client = Client(TWILIO_SID, TWILIO_AUTH_TOKEN)
+    message = client.messages.create(
+        from_=FROM_PHONE,
+        body=MESSAGE,
+        to=TO_PHONE
+    )
+    print("SMS sent!")
+    print(message.sid)
+
+
 def get_and_parse(url):
+
     page = requests.get(url)
     soup = BeautifulSoup(page.text, "html5lib")
     # print(soup.prettify())
@@ -89,6 +95,7 @@ def get_and_parse(url):
 
 
 def units_list(results):
+
     apt_list = [None] * len(results)
     for i in range(len(results)):  # iterate through list and preserve index
         specs = results[i].find('div', class_='specs')
