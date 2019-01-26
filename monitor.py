@@ -77,7 +77,7 @@ def send_sms():
     client = Client(TWILIO_SID, TWILIO_AUTH_TOKEN)
     message = client.messages.create(
         from_=FROM_PHONE,
-        body=MESSAGE,
+        body=MESSAGE + SITE_URL,
         to=TO_PHONE
     )
     print("SMS sent!")
