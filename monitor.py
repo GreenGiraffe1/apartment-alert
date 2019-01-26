@@ -49,7 +49,7 @@ def main():
         if set(new) != set(old) and count > 0:
             print(new)
             print('Different!!!!')
-            send_email()  # Send Email to Notify me of the change!!
+            send_email(old, new)  # Send Email to Notify me of the change!!
             send_sms()
         elif set(new) != set(old) and count == 0:
             print('Different, but this is the first time around')
@@ -59,7 +59,7 @@ def main():
         count += 1
 
 
-def send_email():
+def send_email(old_arr, new_arr):
 
     print('trying to send')
     return requests.post(
@@ -68,7 +68,7 @@ def send_email():
         data={"from": from_email_string,
               "to": [EMAIL_ADDRESS],
               "subject": MESSAGE,
-              "text": "Check the site quick!"})
+              "text": "Check the site quick!\n\nCase1:\nOLD: " + str(old_arr) + "\nNEW: " + str(new_arr) + "\n\n"})
 
 
 def send_sms():
@@ -88,6 +88,7 @@ def get_and_parse(url):
 
     page = requests.get(url)
     soup = BeautifulSoup(page.text, "html5lib")
+    # print(soup, file=open("output.html", "a"))
     # print(soup.prettify())
     results = soup.find_all('ea5-unit', value=re.compile("vm\.BedroomTypes\[2\]\.AvailableUnits*"))
     return results, len(results)
