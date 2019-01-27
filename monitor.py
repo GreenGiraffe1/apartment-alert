@@ -1,5 +1,5 @@
 """
-This module will scrapes an apartment website periodically, and alerts
+This module will scrape an apartment website periodically, and alerts
 when there is an update to the number of 2 BR apartments available.
 
 The comparision is made between two sets of tuples (each containing info about a single apartment unit).
