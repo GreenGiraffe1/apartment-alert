@@ -47,14 +47,15 @@ def main():
         # unit_details = unit_detailer(units_html)
         new = units_list(units_html)
         if set(new) != set(old) and count > 0:
-            print(new)
-            print('Different!!!!')
+            print('OLD:\n' + str(old) + '\n')
+            print('NEW:\n' + str(new))
+            print('Different!!!!\n\n')
             send_email(old, new)  # Send Email to Notify me of the change!!
             send_sms()
         elif set(new) != set(old) and count == 0:
-            print('Different, but this is the first time around')
+            print('Different, but this is the first time around\n')
         elif set(new) == set(old):
-            print('Same...')
+            print('Same...\n')
         time.sleep(600)  # SLEEP 10 minutes
         count += 1
 
@@ -99,12 +100,19 @@ def units_list(results):
     apt_list = [None] * len(results)
     for i in range(len(results)):  # iterate through list and preserve index
         specs = results[i].find('div', class_='specs')
+        amenities = results[i].find('div', class_='amenities')
+        unit_amenities = amenities.find_all('p', class_='amenity')
+        # print(unit_amenities, file=open("amen.html", "a"))
         # print(specs)
         # price = specs.find('span', class_='pricing').text
         floor = specs.find('span', string=re.compile("Floor*")).text.strip()
-        available = specs.find('p', string=re.compile("Available*")).text.strip()
-        apt = (floor, available)  # Create Tuple
-        apt_list[i] = apt
+        # available = specs.find('p', string=re.compile("Available*")).text.strip()
+        apt = []  # Create list for apartment details
+        # apt = (floor, unit_amenities)  # Create Tuple
+        apt.append(floor)
+        for j in unit_amenities:
+            apt.append(j.string.strip())
+        apt_list[i] = tuple(apt)  # convert to tuple so we can compare the sets later
     return apt_list
 
 
